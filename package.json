@@ -1,0 +1,20 @@
+{
+  "name": "chatreal",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [],
+  "author": "Ian Eros Mio Ayala",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "4.21.1",
+    "socket.io": "4.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "3.1.7"
+  }
+}
