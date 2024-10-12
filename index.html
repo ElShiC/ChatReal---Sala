@@ -76,9 +76,7 @@
       border-radius: 1.5rem;
       min-height: 90vh;
       width: 100%;
-      /* O un ancho fijo, si lo prefieres */
       max-width: 90vh;
-      /* Limita el ancho si quieres un máximo */
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -182,7 +180,6 @@
     });
 
     socket.on('chat', (data) => {
-      // Mostrar el mensaje junto con el nombre del usuario
       const chat = document.getElementById('chat');
       chat.innerHTML += `<p><strong>${data.user}:</strong> ${data.message}</p>`;
     });
