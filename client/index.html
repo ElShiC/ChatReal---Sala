@@ -37,9 +37,7 @@
       display: flex;
       justify-content: center;
       background-color: rgb(17, 17, 17);
-      /* Centrar horizontalmente */
       align-items: center;
-      /* Centrar verticalmente */
     }
 
     .usuario {
@@ -166,7 +164,6 @@
 
 
     socket.on('chat', (data) => {
-      // Mostrar el mensaje junto con el nombre del usuario
       const chat = document.getElementById('chat');
       chat.innerHTML += `
       <div class="chat-user ${data.user === usuario ? "active" : ""}">
