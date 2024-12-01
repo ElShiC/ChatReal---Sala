@@ -63,6 +63,9 @@
   <div class="usuario" id="usuario-div">
     <h2>Ingresar Usuario</h2>
     <div class="enviar-usuario">
+      <input type="file" id="fileInput" accept="image/jpeg, image/jpg, image/png">
+      <select name="rooms" id="roomSelect" style="color: black;">
+      </select>
       <input id="usuario-input" type="text" required>
       <button id="registrar-usuario">Registrar</button>
     </div>
@@ -103,13 +106,17 @@
 
     .chat-user {
       display: flex;
-      flex-direction: column;
       max-width: 400px;
       gap: 0.5rem;
     }
 
     .active {
       align-self: flex-end;
+    }
+
+    .disabled {
+      flex-direction: row-reverse;
+      align-self: start;
     }
 
     .active .chat-text {
@@ -138,24 +145,78 @@
       <button class="enviar-button" id="button-chat">Enviar</button>
     </div>
   </div>
+  <style>
+    .chat-user-unique {
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      gap: 0.5rem;
+    }
+  </style>
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
 
+    const predefinedRooms = ["General", "Tecnología", "Juegos"];
+
+    // Referencia al elemento select
+    const roomSelect = document.getElementById("roomSelect");
+
+    // Agregar opciones al select
+    predefinedRooms.forEach((room) => {
+      const option = document.createElement("option");
+      option.value = room;
+      option.textContent = room;
+      roomSelect.appendChild(option);
+    })
+
     var usuario;
 
     document.getElementById('registrar-usuario').addEventListener('click', () => {
-      usuario = document.getElementById('usuario-input').value
-      const close = document.getElementById('usuario-div')
-      close.style.display = "none";
-      console.log('hola')
-      socket.emit('createUser', usuario)
-    })
+      usuario = document.getElementById('usuario-input').value;
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      console.log(usuario)
+      if (roomSelect.value === "" || usuario.trim() === "") {
+        alert("Rellena todos los campos")
+        return
+      }
+
+      if (file) {
+        const reader = new FileReader();
+
+        // Asegúrate de que onloadend se ejecute correctamente
+        reader.onloadend = () => {
+          const imageData = reader.result.split(',')[1]; // Extraer la parte de la imagen en base64
+          const fileName = file.name;
+
+          // Obtener el valor del usuario y realizar las operaciones necesarias
+
+          const close = document.getElementById('usuario-div');
+          close.style.display = "none";
+
+          // Emitir el evento a través de socket.io
+          console.log(roomSelect.value)
+          console.log('Enviando datos al servidor...');
+          socket.emit('createUser', roomSelect.value, usuario, fileName, imageData);
+        };
+
+        // Comienza la lectura del archivo
+        reader.readAsDataURL(file);
+      } else {
+        // Mostrar un mensaje si no se seleccionó una imagen
+        alert("Agregar imagen")
+      }
+    });
+
 
 
     document.getElementById('button-chat').addEventListener('click', () => {
       console.log('funciona')
       const msj = document.getElementById('chat-inputs').value
+      if (msj.trim() === "") {
+        return
+      }
       socket.emit('chat', msj)
       document.getElementById('chat-inputs').value = "";
     })
@@ -163,14 +224,25 @@
 
     socket.on('chat', (data) => {
       const chat = document.getElementById('chat');
+      const bufferIMG = `data:image/jpeg;base64,${data.dataImg}`;
+      console.log(bufferIMG)
+      // Usar comillas en el atributo src y mejorar seguridad con innerHTML
       chat.innerHTML += `
-      <div class="chat-user ${data.user === usuario ? "active" : ""}">
+    <div class="chat-user ${data.user === usuario ? "active" : "disabled"}">
+      <div class="chat-user-unique">
         <div class="user"><strong>${data.user}</strong></div>
-        <div class="chat-text">
-          ${data.message}
-        </div>
-      </div>`;
+      <div class="chat-text">
+        ${data.message}
+      </div>
+    </div>
+      
+      <img id="myImage" src="${bufferIMG}" alt="Imagen desde buffer" style="width: 50px; height: 50px; object-fit: cover; border-radius:50%;" />
+    </div>`;
     });
+
+
+
+
   </script>
 </body>
 
